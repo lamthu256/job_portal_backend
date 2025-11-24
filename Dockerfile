@@ -11,8 +11,5 @@ RUN apt-get update && apt-get install -y \
 # Copy code vào container
 COPY . /var/www/html/
 
-# Tạo thư mục uploads
-RUN mkdir -p /var/www/html/uploads && chmod -R 775 /var/www/html/uploads
-
 EXPOSE 80
 CMD ["apache2-foreground"]

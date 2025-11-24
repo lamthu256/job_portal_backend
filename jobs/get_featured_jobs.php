@@ -12,21 +12,22 @@ if (!$user_id) {
 }
 
 $sql = "SELECT 
-    j.*, 
-    r.company_name, 
+    j.*,
+    r.company_name,
     r.logo_url,
-    CASE 
-        WHEN js.user_id IS NOT NULL THEN 1
-        ELSE 0
-    END AS isSaved,
-    ROUND(AVG(rev.rating), 1) AS avg_rating
+    CASE WHEN js.user_id IS NOT NULL THEN 1 ELSE 0 END AS isSaved,
+    IFNULL(avg_rev.avg_rating, 0) AS avg_rating
 FROM jobs j
 JOIN recruiters r ON j.recruiter_id = r.user_id
 LEFT JOIN job_saved js ON js.job_id = j.id AND js.user_id = ?
-LEFT JOIN reviews rev ON rev.job_id = j.id AND rev.status = 'sent'
+LEFT JOIN (
+    SELECT job_id, ROUND(AVG(rating),1) AS avg_rating
+    FROM reviews
+    WHERE status = 'sent'
+    GROUP BY job_id
+) AS avg_rev ON avg_rev.job_id = j.id
 WHERE j.job_status = 'Open'
-GROUP BY j.id
-ORDER BY j.created_at ASC
+ORDER BY j.created_at DESC
 LIMIT 10";
 
 $stmt = $conn->prepare($sql);

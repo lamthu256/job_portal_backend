@@ -13,11 +13,14 @@ if (!$user_id || empty($message)) {
 
 $message_json = json_encode($message, JSON_UNESCAPED_UNICODE);
 
+date_default_timezone_set('Asia/Ho_Chi_Minh');
+$time = date('Y-m-d H:i:s');
+
 $sql = "INSERT INTO notifications (user_id, message, is_read, created_at) 
-        VALUES (?, ?, FALSE, NOW())";
+        VALUES (?, ?, FALSE, ?)";
 
 $stmt = $conn->prepare($sql);
-$stmt->bind_param("is", $user_id, $message_json);
+$stmt->bind_param("iss", $user_id, $message_json, $time);
 
 if ($stmt->execute()) {
     $notification_id = $stmt->insert_id;
